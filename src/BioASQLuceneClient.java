@@ -13,9 +13,9 @@ import org.json.JSONObject;
 
 public class BioASQLuceneClient {
 	public static void main(String[] args) throws IOException, JSONException {
-		System.out.println(Math.log(0));
+
 		Map<String, String> id2queryMap = new HashMap<String, String>();
-		Scanner qin = new Scanner(new File("gs_1-10.query"));
+		Scanner qin = new Scanner(new File("dryrun-b.query"));
 		while(qin.hasNext()) {
 			String line = qin.nextLine();
 			id2queryMap.put(line.split(":")[0], line.split(":")[1].trim());
@@ -59,29 +59,27 @@ public class BioASQLuceneClient {
 			out.println(q);
 			String lineFromSever = in.readLine();
 			JSONObject jsobj = new JSONObject(lineFromSever);
-			System.out.println("echo: " + lineFromSever);
+			//System.out.println("echo: " + lineFromSever);
 			
 			JSONArray docnoList = (JSONArray) jsobj.get("docno_list");
 			JSONArray scoreList = (JSONArray) jsobj.get("score_list");
 			
-			
+			JSONArray titleList = (JSONArray) jsobj.get("title_list");
+			JSONArray abstractList = (JSONArray) jsobj.get("abstract_list");
 			
 			for(int i=0; i<docnoList.length(); i++) {
 				System.out.println(qid+" "+(docnoList.get(i)+" "+scoreList.get(i)));
+				//System.out.println(titleList.get(i));
+				//System.out.println(abstractList.get(i));
 				resultBuf.add(String.format("%s Q0 %s %d %f %s", qid, docnoList.get(i), i+1, (double)scoreList.get(i), "LTR"));
 			}
-			
 		}
-		
-
 
 		out.close();
 		in.close();
 
 		echoSocket.close();
-		
-		
-		
+				
 		PrintWriter outResult = new PrintWriter(new BufferedWriter(new FileWriter("resultFromServer", false)));
 		for(String s: resultBuf) {
 			outResult.println(s);
